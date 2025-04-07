@@ -1,3 +1,0 @@
-flask
-a2s
-flask-cors
