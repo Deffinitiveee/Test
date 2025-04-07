@@ -1,34 +1,38 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Info del servidor</title>
+  <meta charset="UTF-8" />
+  <title>Estado del Servidor CS</title>
 </head>
 <body>
-  <h1>Servidor de Counter Strike 1.6</h1>
-  <p><strong>Nombre del servidor:</strong> <span id="serverName">Cargando...</span></p>
-  <p><strong>Mapa actual:</strong> <span id="map">Cargando...</span></p>
-  <p><strong>Jugadores:</strong> <span id="players">Cargando...</span></p>
-
-  <ul id="playerList"></ul>
+  <h1>Estado del Servidor CS 1.6</h1>
+  <p id="nombre">Cargando nombre del servidor...</p>
+  <p id="mapa">Cargando mapa...</p>
+  <p id="jugadores">Cargando jugadores conectados...</p>
+  <ul id="lista-jugadores"></ul>
 
   <script>
     fetch("http://127.0.0.1:5000/server-info")
       .then(response => response.json())
       .then(data => {
-        document.getElementById("serverName").innerText = data.nombre_servidor;
-        document.getElementById("map").innerText = data.mapa;
-        document.getElementById("players").innerText = data.jugadores_conectados;
+        if (data.error) {
+          document.getElementById("nombre").textContent = "Error: " + data.error;
+        } else {
+          document.getElementById("nombre").textContent = "Nombre del servidor: " + data.nombre_servidor;
+          document.getElementById("mapa").textContent = "Mapa actual: " + data.mapa;
+          document.getElementById("jugadores").textContent = "Jugadores conectados: " + data.jugadores_conectados;
 
-        const list = document.getElementById("playerList");
-        data.jugadores.forEach(player => {
-          const li = document.createElement("li");
-          li.innerText = player;
-          list.appendChild(li);
-        });
+          const lista = document.getElementById("lista-jugadores");
+          data.jugadores.forEach(jugador => {
+            const item = document.createElement("li");
+            item.textContent = jugador || "(sin nombre)";
+            lista.appendChild(item);
+          });
+        }
       })
       .catch(error => {
-        console.error("Error al obtener la información:", error);
+        document.getElementById("nombre").textContent = "Error al conectar con el servidor.";
+        console.error("Error:", error);
       });
   </script>
 </body>
