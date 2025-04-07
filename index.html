@@ -76,12 +76,21 @@
   </div>
 
   <script>
-fetch('http://10.204.104.252:10000/server-info')
-    .then(response => response.json())
+fetch('http://127.0.0.1:10000/server-info')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("No puedes acceder a esta información fuera de la red local");
+        }
+        return response.json();
+    })
     .then(data => {
         console.log(data);
+        // Aquí puedes actualizar el DOM con la información del servidor
     })
-    .catch(error => console.error('Error:', error));
+    .catch(error => {
+        console.error("Error:", error);
+        alert(error.message);
+    });
 
         const infoDiv = document.getElementById("server-info");
         const loader = document.getElementById("loader");
