@@ -2,37 +2,105 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Estado del Servidor CS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Servidor - Los-Boodines.ARG</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #121212;
+      color: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 500px;
+      width: 90%;
+      background-color: #1e1e1e;
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: 0 0 15px rgba(0, 255, 170, 0.3);
+      text-align: center;
+    }
+
+    .logo {
+      width: 100px;
+      margin-bottom: 15px;
+    }
+
+    h1 {
+      color: #00ffc3;
+    }
+
+    .info {
+      margin-top: 20px;
+    }
+
+    .info p {
+      margin: 8px 0;
+      font-size: 1.1em;
+    }
+
+    .players {
+      margin-top: 10px;
+      padding-left: 0;
+      list-style: none;
+    }
+
+    /* Spinner */
+    .spinner {
+      border: 6px solid rgba(255, 255, 255, 0.1);
+      border-top: 6px solid #00ffc3;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
 </head>
 <body>
-  <h1>Estado del Servidor CS 1.6</h1>
-  <p id="nombre">Cargando nombre del servidor...</p>
-  <p id="mapa">Cargando mapa...</p>
-  <p id="jugadores">Cargando jugadores conectados...</p>
-  <ul id="lista-jugadores"></ul>
+  <div class="container">
+    <img src="https://upload.wikimedia.org/wikipedia/en/thumb/0/05/Cs16cover.jpg/220px-Cs16cover.jpg" alt="CS Logo" class="logo">
+    <h1>Comunidad Los-Boodines.ARG</h1>
+    <div id="loader" class="spinner"></div>
+    <div class="info" id="server-info" style="display:none;"></div>
+  </div>
 
   <script>
     fetch("http://127.0.0.1:5000/server-info")
       .then(response => response.json())
       .then(data => {
-        if (data.error) {
-          document.getElementById("nombre").textContent = "Error: " + data.error;
-        } else {
-          document.getElementById("nombre").textContent = "Nombre del servidor: " + data.nombre_servidor;
-          document.getElementById("mapa").textContent = "Mapa actual: " + data.mapa;
-          document.getElementById("jugadores").textContent = "Jugadores conectados: " + data.jugadores_conectados;
+        if (data.error) throw new Error(data.error);
 
-          const lista = document.getElementById("lista-jugadores");
-          data.jugadores.forEach(jugador => {
-            const item = document.createElement("li");
-            item.textContent = jugador || "(sin nombre)";
-            lista.appendChild(item);
-          });
-        }
+        const infoDiv = document.getElementById("server-info");
+        const loader = document.getElementById("loader");
+        loader.style.display = "none";
+        infoDiv.style.display = "block";
+
+        infoDiv.innerHTML = `
+          <p><strong>Nombre:</strong> ${data.nombre_servidor}</p>
+          <p><strong>Mapa actual:</strong> ${data.mapa}</p>
+          <p><strong>Jugadores conectados:</strong> ${data.jugadores_conectados}</p>
+          <p><strong>Jugadores:</strong></p>
+          <ul class="players">
+            ${data.jugadores.map(j => `<li>${j}</li>`).join("")}
+          </ul>
+        `;
       })
-      .catch(error => {
-        document.getElementById("nombre").textContent = "Error al conectar con el servidor.";
-        console.error("Error:", error);
+      .catch(err => {
+        document.getElementById("loader").style.display = "none";
+        const infoDiv = document.getElementById("server-info");
+        infoDiv.style.display = "block";
+        infoDiv.innerText = `Error: ${err.message}`;
       });
   </script>
 </body>
